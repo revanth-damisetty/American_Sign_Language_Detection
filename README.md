@@ -1,179 +1,212 @@
-# 🇺🇸 American Sign Language Detection 📱
 
-An end-to-end deep-learning project to **detect American Sign Language (ASL) gestures**, supporting **29 classes** of alphabets/gestures using **MobileNetV2**, and deployed on smartphones via **TensorFlow Lite**.
 
----
+# 🖐 Sign Language Recognition
 
-## 📌 Table of Contents
+A real-time sign language recognition system that leverages **computer vision, deep learning, and web technologies** to interpret hand gestures. Using **MediaPipe Hands**, the system accurately detects **21 3D hand landmarks** and preprocesses them to feed into a **Keras-based deep learning model** trained on a 3D tilt-aware dataset of sign language gestures. The application provides a **seamless real-time experience** via webcam, displaying both the predicted sign and its **confidence score** directly on the video feed.
 
-1. [Project Overview](#project-overview)  
-2. [Architecture & Model](#architecture--model)  
-3. [How It Works](#how-it-works)  
-4. [Directory Structure](#directory-structure)  
-5. [Setup & Installation](#setup--installation)  
-6. [Usage](#usage)  
-7. [Demo & Screenshots](#demo--screenshots)  
-8. [Results & Performance](#results--performance)  
-9. [Future Work](#future-work)  
-10. [Contributing](#contributing)  
-11. [License](#license)  
+Designed with **modularity and scalability** in mind, the project includes a **training notebook** for model experimentation, a **Flask API** for programmatic access, and a **real-time client script** for live demonstration. It can be extended to support **multi-hand recognition, mobile deployment, or integration with web and audio interfaces**, making it an ideal foundation for applications in **assistive technologies, accessibility tools, and human-computer interaction**.
 
----
+Key highlights:
 
-## 🔍 Project Overview
+-   **Accurate gesture detection:** Captures subtle 3D hand movements with MediaPipe.
+    
+-   **Deep learning prediction:** Uses a tilt-aware Keras model for robust sign recognition.
+    
+-   **Real-time feedback:** Predictions are displayed instantly on live webcam feed.
+    
+-   **Flexible architecture:** Modular design supports training, API access, and real-time deployment.
+    
+-   **Extensible framework:** Can be enhanced for mobile/web use, multi-hand gestures, and additional sign languages.
+    
 
-This project uses a deep-learning model to recognize ASL alphabets through gesture recognition:
+----------
 
-- **Dataset:** A curated MOD dataset featuring 29 ASL classes.  
-- **Model:** Utilizes **MobileNetV2**, pre-trained then fine-tuned via **TensorFlow** / **Keras**.  
-- **Mobile Deployment:** Converted trained model into **TensorFlow Lite** (.tflite) format for on-device inference.  
-- **Interface:** Integrated into a **Java-based mobile app**.
+## 🚀 Features
 
----
+-   Real-time gesture recognition via webcam
+    
+-   3D hand landmark extraction with MediaPipe
+    
+-   Scaled feature normalization for robust predictions
+    
+-   Flask API for prediction requests
+    
+-   Modular design: training, API, and real-time client
+    
+-   Confidence score for each prediction
+    
+-   Easy integration with other Python projects or web apps
+    
 
-## 🧱 Architecture & Model
+----------
 
-```
-+----------------+      +------------------+      +------------------------+
-| ASL Image Feed | ---> | MobileNetV2      | ---> | Dense (29-softmax)     |
-|  (camera/app)  |      | + Custom layers  |      |                        |
-+----------------+      +------------------+      +------------------------+
-                                   ↓
-                             TF SavedModel
-                                   ↓
-                              TF Lite (.tflite)
-                                   ↓
-                            Mobile Deployment
-```
-
-The core **MobileNetV2** serves as a lightweight backbone ideal for mobile deployment. A final dense layer is added to match the 29 target classes.
-
----
-
-## ⚙️ How It Works
-
-1. **Data Preprocessing:**  
-   - Images resized to `224×224`, normalized for MobileNetV2.  
-   - Labels encoded into one-hot vectors.
-
-2. **Model Training:**  
-   - MobileNetV2 loaded with ImageNet weights.  
-   - Fine-tuned on the ASL dataset until validation metrics plateau.
-
-3. **Conversion to TFLite:**  
-   - Model saved as `model.tflite` using `tf.lite.TFLiteConverter`.  
-   - Optimizations (quantization) applied for faster mobile inference.
-
-4. **Deployment in App:**  
-   - Model integrated into an Android app (Java/Kotlin).  
-   - Real-time inference on camera feed, mapping gestures to ASL alphabets.
-
----
-
-## 🗂️ Directory Structure
+## 📁 Project Structure
 
 ```
-/
-├── notebook/           # Jupyter notebooks: model training, evaluation, TFLite conversion
-├── script/             # Utility scripts for conversion, dataset management
-├── ASL App/            # Android mobile app integration with TFLite
-├── results/            # Training logs, accuracy/loss plots, confusion matrix
-├── model/              # SavedModel & TFLite .tflite files
-├── README.md           # Project documentation
-├── LICENSE             # MIT License
-└── CODE_OF_CONDUCT.md
+SignLanguageRecognition/
+│
+├── TiltedModel/
+│   ├── sign_model_3dtilt.h5       # Trained Keras model
+│   ├── label_encoder.pkl           # Label encoder for sign classes
+│   └── scaler.pkl                  # Scaler for feature normalization
+│
+├── app.py                          # Flask API for predictions
+├── realtime.py                      # Real-time webcam client
+├── titled_training.ipynb            # Notebook for model training
+├── README.md                        # Project documentation
+└── requirements.txt                 # Python dependencies
+
 ```
 
----
+----------
 
-## 🛠️ Setup & Installation
+## ⚙️ Setup & Installation
 
-Clone the repo and set up Python environment:
+### Clone the repository
 
-```bash
-git clone https://github.com/revanth-damisetty/American_Sign_Language_Detection.git
-cd American_Sign_Language_Detection
+```
+git clone <repository_url>
+cd SignLanguageRecognition
 
-# For training (in notebook)
-pip install -r requirements.txt  # includes TensorFlow, Keras, OpenCV, etc.
-
-# For mobile app
-Open Android Studio → Import ASL App folder
-Add the model.tflite to the assets directory
-Ensure camera & storage permissions are set
 ```
 
----
+### Create a virtual environment
 
-## ▶️ Usage
+```
+python -m venv venv
+# Linux/Mac
+source venv/bin/activate
+# Windows
+venv\Scripts\activate
 
-### 1. Train & Convert
-
-- Open `notebook/ASL_train.ipynb`: run cells to preprocess data, train, visualize metrics.  
-- After training, convert the model:  
-
-```python
-import tensorflow as tf
-
-model = tf.keras.models.load_model('model/saved_model/')
-converter = tf.lite.TFLiteConverter.from_saved_model('model/saved_model/')
-tflite_model = converter.convert()
-
-with open('model/asl_model.tflite', 'wb') as f:
-    f.write(tflite_model)
 ```
 
-### 2. Deploy on Mobile
+### Install dependencies
 
-- Place `asl_model.tflite` into `ASL App/app/src/main/assets/`.  
-- Run the Android app on a device/simulator.  
-- The app displays live camera feed with recognized ASL letter overlay.
+```
+pip install -r requirements.txt
 
----
+```
 
-## 📸 Demo & Screenshots
+----------
 
-*Insert screenshots showing live ASL detection from the app here*
+## 🧠 Model Training
 
----
+-   **Landmark Extraction:** MediaPipe Hands for 21 3D landmarks
+    
+-   **Preprocessing:** Flatten landmarks and scale using `scaler.pkl`
+    
+-   **Model:** Keras Sequential model trained to predict sign classes
+    
+-   **Saved Files:** `sign_model_3dtilt.h5`, `label_encoder.pkl`, `scaler.pkl`
+    
+-   **Notebook:** `titled_training.ipynb` for training, testing, and visualization
+    
 
-## 📊 Results & Performance
+----------
 
-- Model trained to over **90% accuracy** on test set (metrics logged in `results/`).  
-- **Loss & accuracy curves, confusion matrix**, all visualized in `results/` folder.  
-- Model size: ~**X MB**, optimized for mobile.
+## 🎥 Real-Time Prediction
 
----
+-   Captures webcam frames every 1.5 seconds
+    
+-   Sends frames to Flask API (`/predict`)
+    
+-   Receives predicted sign + confidence
+    
+-   Displays prediction overlay on video feed
+    
 
-## 🚀 Future Work
+**Run real-time detection:**
 
-- **Text-to-Speech:** Convert predicted letters into spoken words.  
-- **Sentence tracking:** Recognize continuous ASL sentences, not just isolated letters.  
-- **Extended gestures:** Include digits, common phrases, and full vocabulary.
+```
+python realtime.py
 
----
+```
 
-## 🤝 Contributing
+----------
 
-1. Fork the repo  
-2. Create a new branch: `git checkout -b feature-xyz`  
-3. Commit changes & push  
-4. Open a Pull Request  
+## 🌐 API Usage
 
-Please adhere to the [Code of Conduct](CODE_OF_CONDUCT.md).
+-   **Endpoint:** `POST /predict`
+    
+-   **Request:** Send an image file as `frame`
+    
+-   **Response:** JSON - Predicted letter with confidence value
+    
 
----
+**Example Response:**
 
-## 📄 License
+```json
+{
+  "sign": "M",
+  "confidence": 0.92
+}
 
-This project is licensed under the **MIT License**. See [LICENSE](LICENSE) for details.
+```
 
----
+**Run API server:**
 
-## 💡 Acknowledgements
+```
+python app.py
 
-- Based on **MobileNetV2** architecture, fine-tuned for ASL.  
-- Deployed via **TensorFlow Lite** for mobile inference.  
-- Kudos to the original repo's author for the core pipeline.
+```
 
----
+----------
+
+## 🧩 Methodology
+
+-   **Hand Detection:** MediaPipe Hands (21 3D landmarks)
+    
+-   **Feature Flattening & Scaling:** Standardize input for model
+    
+-   **Prediction:** Feed into Keras model, choose highest probability class
+    
+-   **Display:** Overlay predicted sign + confidence on webcam feed
+    
+
+----------
+
+## 🛠 Technologies
+
+-   Python 3.x
+    
+-   OpenCV
+    
+-   MediaPipe
+    
+-   TensorFlow / Keras
+    
+-   Flask
+    
+-   NumPy, Pickle
+    
+
+----------
+
+## 🔮 Future Improvements
+
+-   Lightweight and faster models for mobile/web deployment
+    
+-   Web app interface with audio feedback
+    
+-   Multi-hand recognition
+    
+-   Support for multiple sign languages
+    
+-   Integration with voice-to-text for real-time conversation
+    
+
+----------
+
+## 💡 Tips & Usage
+
+-   Ensure good lighting for accurate hand landmark detection
+    
+-   Keep background simple to reduce detection errors
+    
+-   Run `realtime.py` only after starting the Flask API server
+    
+-   Use GPU if available for faster model inference
+    
+
+----------
